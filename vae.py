@@ -3,16 +3,23 @@ import tensorflow as tf
 from tensorflow.contrib.layers. import fully_connected
 
 class VAE:
-	def __init__(self):
+	def __init__(self,learning_rate=1e-4,batch_size=32,no_z=16):
+		self.learning_rate = learning_rate
+		self.batch_size = batch_size
+		self.no_z = no_z
 
+		tf.reset_default_graph()
 		if mode = 'fully_connected':
 			build_fully_connected()
 		elif mode = 'CNN':
 			build_CNN()
 
-	def build_fully_connected(self):
-		self.x = tf.placeholder()
+		self.sess = tf.Session()
+		self.sess.run(tf.global_variable_initializer())
 
+
+	def build_fully_connected(self):
+		self.x = tf.placeholder(name='input_x',dtype=tf.float32,shape=[None,input_dim])
 
 		# Encode
 		# x -> z_mean, z_sigma 
@@ -20,14 +27,12 @@ class VAE:
 		f2 = fully_connected(f1,128,scope='enc_fc2',activation_fn=tf.nn.elu)
 		f3 = fully_connected(f2,64,scope='enc_fc3',activation_fn=tf.nn.elu)
 
-		self.z_mu = 
-
-		self.z_log_sigma_sq = 
-
+		self.z_mu = fully_connected(f3,self.no_z,scope='enc_fc4_mu',activation_fn=None)
+		self.z_log_sigma_sq = fully_connected(f3,self.no_z,scope='enc_fc4_sigma',activation_fn=None)
 
 
 		# z_mean, z_sigma, random_normal -> z
-		eps = tf.random_normal()
+		eps = tf.random_normal(shape=tf.shape(self.z_log_sigma_sq),mean=0,stddev=1,dtype=tf.float32)
 		self.z = self.z_mu + tf.sqrt(tf.exp(self.z_log_sigma_sq)) * eps
 
 		# Decode
@@ -36,7 +41,7 @@ class VAE:
 		g2 = fully_connected(g1,128,scope='gen_fc2',activation_fn=tf.nn.elu)
 		g3 = fully_connected(g2,256,scope='gen_fc3',activation_fn=tf.nn.elu)
 
-		self.x_hat = fully_connected(g3,)
+		self.x_hat = fully_connected(g3,input_dim,scope='gen_out',activation_fn=tf.sigmoid)
 
 		# Loss
 		# Loss1: Reconstruction Loss
@@ -51,8 +56,9 @@ class VAE:
 		# Loss2: Latent loss KL(q(z|x)||p(z))
 		# KL divergence 
 		# p(z) is a N(0,1)
-		latent_loss = -0.5 * tf.reduce_sum(,
-			axis = 1)
+		latent_loss = -0.5 * tf.reduce_sum(
+            1 + self.z_log_sigma_sq - tf.square(self.z_mu) - tf.exp(self.z_log_sigma_sq),
+            axis=1)
 		self.latent_loss = tf.reduce_mean(latent_loss)
 
 		self.total_loss = self.recon_loss + self.latent_loss
