@@ -2,7 +2,7 @@ import time
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt 
-from tensorflow.data.Dataset import from_generator
+from tensorflow.data import Dataset
 from vae import VAE
 
 data_root=path.expanduser('/home/aitrading/Desktop/GLTransform/output/npy/')
@@ -16,13 +16,13 @@ def generate():
         yield data
 
 if mode == 'fully_connected':
-    data_set = from_generator(generate, (tf.int32, ), output_shapes = tf.TensorShape([None,]))
+    data_set = Dataset.from_generator(generate, (tf.int32, ), output_shapes = tf.TensorShape([None,]))
 elif mode == 'CNN':
-    data_set = from_generator(generate, (tf.int32, tf.int32), output_shapes = tf.TensorShape([512,512]))
+    data_set = Dataset.from_generator(generate, (tf.int32, tf.int32), output_shapes = tf.TensorShape([512,512]))
 
 def trainer(model_object, learning_rate=1e-4, 
             batch_size=64, num_epoch=5, n_z=16, log_step=5, mode=mode, num_sample):
-    model = model_object(learning_rate=learning_rate, batch_size=batch_size, n_z=n_z, mode= mode)
+    model = model_object(mode= mode, learning_rate=learning_rate, batch_size=batch_size, n_z=n_z)
 
     for epoch in range(num_epoch):
         start_time = time.time()
