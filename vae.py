@@ -1,22 +1,21 @@
 # reference to Github.com/shaohua0116/VAE_Tensorflow
 import tensorflow as tf
-from tensorflow.contrib.layers. import fully_connected
+from tensorflow.contrib.layers import fully_connected
 
 class VAE:
-	def __init__(self,learning_rate=1e-4,batch_size=32,no_z=16):
+	def __init__(self,learning_rate=1e-4,batch_size=32,no_z=16,mode):
 		self.learning_rate = learning_rate
 		self.batch_size = batch_size
 		self.no_z = no_z
 
 		tf.reset_default_graph()
-		if mode = 'fully_connected':
+		if mode == 'fully_connected':
 			build_fully_connected()
-		elif mode = 'CNN':
+		elif mode == 'CNN':
 			build_CNN()
 
 		self.sess = tf.Session()
 		self.sess.run(tf.global_variable_initializer())
-
 
 	def build_fully_connected(self):
 		self.x = tf.placeholder(name='input_x',dtype=tf.float32,shape=[None,input_dim])
