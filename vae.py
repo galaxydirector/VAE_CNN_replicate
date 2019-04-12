@@ -3,19 +3,19 @@ import tensorflow as tf
 from tensorflow.contrib.layers import fully_connected
 
 class VAE:
-	def __init__(self,learning_rate=1e-4,batch_size=32,no_z=16,mode):
+	def __init__(self,learning_rate=1e-4,batch_size=32,no_z=16,mode='fully_connected'):
 		self.learning_rate = learning_rate
 		self.batch_size = batch_size
 		self.no_z = no_z
 
 		tf.reset_default_graph()
 		if mode == 'fully_connected':
-			build_fully_connected()
+			self.build_fully_connected()
 		elif mode == 'CNN':
-			build_CNN()
+			self.build_CNN()
 
 		self.sess = tf.Session()
-		self.sess.run(tf.global_variable_initializer())
+		self.sess.run(tf.global_variables_initializer())
 
 	def build_fully_connected(self):
 		self.x = tf.placeholder(name='input_x',dtype=tf.float32,shape=[None,input_dim])
@@ -45,6 +45,8 @@ class VAE:
 		# Loss
 		# Loss1: Reconstruction Loss
 		# Cross Entropy of original and x_hat
+		# proofs
+		# https://stats.stackexchange.com/questions/7440/kl-divergence-between-two-univariate-gaussians
 		epsilon = 1e-10
 		recon_loss = -tf.reduce_sum(self.x*tf.log(epsilon+self.x_hat)+(1-self.x)*tf.log(epsilon+1-self.x_hat),
 			axis=1)
